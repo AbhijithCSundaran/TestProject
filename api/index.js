@@ -77,18 +77,27 @@ app.post('/api/UserList/Login', multer().none(), async (req, res) => {
 //     else
 //         response.json("Invalid Email or Password")
 // })
-app.post('/api/UserList/AddUser', multer().none(), (request, response) => {
-    // var isEmailExist = checkEmail(request);
-    // if (!isEmailExist) {
-    database.collection("UserList").insertOne({
-        FirstName: request.body.FirstName,
-        LastName: request.body.LastName,
-        Email: request.body.Email,
-        Mobile: request.body.Mobile,
-        Role: request.body.Role,
-        Password: request.body.Password
-    })
-    response.json("Added Successfully")
+app.post('/api/UserList/AddUser', multer().none(), async (request, response) => {
+    try {
+        const user = await database.collection('UserList').findOne({ Email: request.body.Email });
+        if (user)
+            return response.json({ error: 'This Email Alreday registered', User: user });
+        else {
+            const newUser = await database.collection("UserList").insertOne({
+                FirstName: request.body.FirstName,
+                LastName: request.body.LastName,
+                Email: request.body.Email,
+                Mobile: request.body.Mobile,
+                Role: request.body.Role,
+                Password: request.body.Password
+            })
+            return response.json({ error: null, User: newUser });
+        }
+    } catch (err) {
+        console.error('Error during Check Email:', err);
+        response.status(500).json({ error: 'An error occurred during email checking.' });
+    }
+
     // }
     // response.json("Email ")
 })

@@ -49,8 +49,12 @@ export class RegisterComponent implements OnInit {
     else {
       var data = this.registerForm.value
       this.userService.createUser(data).subscribe((result: any) => {
-        alert(result)
-        this.router.navigate(['/'])
+        if (!result?.error) {
+          alert("user added successfully")
+          this.router.navigate(['/'])
+        }
+        else
+          alert(result?.error ? result?.error : "something went wrong")
       })
     }
   }
